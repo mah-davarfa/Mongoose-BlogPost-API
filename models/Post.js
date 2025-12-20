@@ -1,0 +1,25 @@
+const mongoose = require('mongoose')
+const sanitizeHtml= require('sanitize-html')
+
+const postSchema = new mongoose.Schema(
+    {
+        title:{type:String, required:true, trim:true ,minlength:3},
+        content:{
+            type:String,
+            required:true,
+            trim:true,
+            minlength:100,
+            maxlength:2000,
+
+            set:(value)=>
+                sanitizeHtml(value,{
+                allowedTags:[],
+                allowedAttributes:{},
+            })
+        },
+        author:{type:mongoose.Schema.Types.ObjectId ,ref:'User', required:true},
+        comments:[{type:mongoose.Schema.Types.ObjectId, ref:'Comment'}]
+    },
+    {timestamps:true}
+)
+module.exports=mongoose.model('Post',postSchema)
