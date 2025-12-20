@@ -15,8 +15,8 @@ const commentSchema = new mongoose.Schema(
                 allowedAttributes:{}
             })
         },
-        author:{type:mongoose.Schema.Types.ObjectId, ref:"user", required:true},
-        post:{type:mongoose.Schema.Types.ObjectId, ref:"post", required:true}
+        author:{type:mongoose.Schema.Types.ObjectId, ref:"User", required:true},
+        post:{type:mongoose.Schema.Types.ObjectId, ref:"Post", required:true}
     },
     {timestamps:true}
 

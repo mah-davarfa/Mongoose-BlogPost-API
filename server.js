@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config()
 const usersRoute = require('./routes/users');
 const postsRoute = require('./routes/posts');
+const commentsRoute = require('./routes/comments.js')
 const errorHandler = require("./middleware/errorHandler");
 const connectToDatabase = require('./config/database.js')
 
@@ -41,6 +42,13 @@ app.get('/', (req, res) => {
         update: 'PUT /api/posts/:id',
         delete: 'DELETE /api/posts/:id',
       },
+      comments:{
+        listForUser:'GET /api/users/:usersId/comments',
+        list:'GET /api/posts/:postId/comments',
+        create:'POST /api/posts/:postId/comments',
+        update:'PUT /api/comments/:id',
+        delete:'DELETE /api/comments/:id',
+      },
       users: {
         list: 'GET /api/users',
         create: 'POST /api/users',
@@ -58,7 +66,7 @@ app.get("/login", (req,res)=>{
 })
 //useing the Routes
 app.use('/api/posts',postsRoute);
-
+app.use('/api',commentsRoute)
 app.use('/api/users',usersRoute);
 
 //path that not existe 
