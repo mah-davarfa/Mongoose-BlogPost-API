@@ -11,9 +11,11 @@ const PORT = process.env.PORT ||3010;
 //middllewar json
 app.use(express.json());
 
-
-
-//for debuging
+ async function  startServer (){
+  
+  try{
+  await  connectToDatabase()
+    //for debuging
 app.use((req,res,next)=>{
     console.log(`url:${req.url} method: ${req.method}`)
     next();
@@ -71,3 +73,11 @@ app.use(errorHandler);
 app.listen(PORT,()=>{
     console.log(`server is listenning at :${PORT}`);
 })
+
+  }catch(err){
+    console.log('error in starting the server :', err)
+  }
+
+}
+
+startServer()

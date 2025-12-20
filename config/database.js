@@ -6,11 +6,11 @@ async function connectDatabase (){
             if(!DATABASE_URI){
         
                 console.log("err to conect to DB",DATABASE_URI)
-                return; 
+                process.exit(1) 
             }
-        mongoose.connect(DATABASE_URI);
+        await mongoose.connect(DATABASE_URI);
         mongoose.connection.on('connected',()=>{
-                console.loge("Database is conected,,,,,,,,,,,,,,")
+                console.log("Database is conected,,,,,,,,,,,,,,")
           })
          mongoose.connection.on('error',(error)=>{
             console.error('MongoDB connection error:', error);
@@ -18,11 +18,8 @@ async function connectDatabase (){
          }) 
              
     }catch(err){
-        const status=err.status || err.statusCode || 500;
-        const name =err.name;
+
         console.log("failed to connect to Database error is: ",err.message)
-        console.log('error name: ', name)
-        console.log('failed status:',status)
         process.exit(1)
     }
    
