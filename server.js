@@ -1,10 +1,12 @@
 const express = require('express');
-require('dotenv').config()
+const mongoose = require('mongoose');
+require('dotenv').config();
+
 const usersRoute = require('./routes/users');
 const postsRoute = require('./routes/posts');
 const commentsRoute = require('./routes/comments.js')
 const errorHandler = require("./middleware/errorHandler");
-const connectToDatabase = require('./config/database.js')
+const connectToDatabase = require('./config/database.js');
 
 const app = express();
 const PORT = process.env.PORT ||3010;
@@ -16,6 +18,10 @@ app.use(express.json());
   
   try{
   await  connectToDatabase()
+console.log('MONGODB_URI:', process.env.MONGODB_URI);
+console.log('Connected DB name:', mongoose.connection.name);
+console.log('Connected host:', mongoose.connection.host);
+
     //for debuging
 app.use((req,res,next)=>{
     console.log(`url:${req.url} method: ${req.method}`)
@@ -43,7 +49,7 @@ app.get('/', (req, res) => {
         delete: 'DELETE /api/posts/:id',
       },
       comments:{
-        listForUser:'GET /api/users/:usersId/comments',
+        listForUser:'GET /api/users/:userId/comments',
         list:'GET /api/posts/:postId/comments',
         create:'POST /api/posts/:postId/comments',
         update:'PUT /api/comments/:id',
@@ -65,8 +71,8 @@ app.get("/login", (req,res)=>{
 
 })
 //useing the Routes
-app.use('/api/posts',postsRoute);
-app.use('/api',commentsRoute)
+// app.use('/api/posts',postsRoute);
+// app.use('/api',commentsRoute)
 app.use('/api/users',usersRoute);
 
 //path that not existe 

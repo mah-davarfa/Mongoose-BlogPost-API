@@ -11,11 +11,8 @@ getAllUsersAndBasedOnrole,
 } = require('../controllers/usersController.js');
 
 
-//GET/api/users
+//GET/api/users?role=authore
 router.get('/',getAllUsersAndBasedOnrole);
-
-// GET /api/users/roles?role=author 
-router.get('/roles',getAllUsersAndBasedOnrole);
 
 // GET /api/users/:id
 router.get('/:id',getUserById);
