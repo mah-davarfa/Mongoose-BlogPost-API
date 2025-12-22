@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema(
             type:String,
             required:true,
             trim:true,
-            minlength:100,
+            minlength:10,
             maxlength:2000,
 
             set:(value)=>
@@ -17,7 +17,15 @@ const postSchema = new mongoose.Schema(
                 allowedAttributes:{},
             })
         },
-        author:{type:mongoose.Schema.Types.ObjectId ,ref:'User', required:true},
+        author:{
+            type:mongoose.Schema.Types.ObjectId ,
+            ref:'User',
+             required:true
+            },
+        published: {
+            type: Boolean,
+            default: false,
+            },
         
     },
     {timestamps:true}
