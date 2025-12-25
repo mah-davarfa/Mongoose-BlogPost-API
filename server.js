@@ -72,7 +72,7 @@ app.get("/login", (req,res)=>{
 })
 //useing the Routes
 app.use('/api/posts',postsRoute);
-// app.use('/api',commentsRoute)
+app.use('/api/comments',commentsRoute)
 app.use('/api/users',usersRoute);
 
 //path that not existe 

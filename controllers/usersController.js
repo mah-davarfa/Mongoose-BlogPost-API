@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const Post = require("../models/Post");
 
 const htpErrors =(status, message)=>{
     const error = new Error (message);
@@ -49,7 +50,7 @@ const getAllUsersAndBasedOnrole = async (req, res, next) => {
 // GET /api/users/:id
 const getUserById = async (req, res, next) => {
     const {id}= req.params;
-     if (!id) next(htpErrors (400,'user id is required'));
+     if (!id) return next(htpErrors (400,'user id is required'));
 
     if(!ifIdIsValidIdWithMongoose(id)) return next(htpErrors(400,'invalid user id format'));
 
@@ -61,6 +62,26 @@ const getUserById = async (req, res, next) => {
     next(err)
 }
 }
+//Get posts for specifice user
+//Get /api/users/:id/posts
+const getUserPosts = async (req,res, next)=>{
+    const {id}= req.params;
+    if(!ifIdIsValidIdWithMongoose(id)) return next(htpErrors(400,'invalid user id format'));
+   
+    try{
+        const userExists= await User.findById(id);
+        if(!userExists) return next (htpErrors(404,'user not found'));
+
+        const posts = await Post.find({author:id}).populate('author','name email').sort({createdAt:-1});
+        res.status(200).json({
+            posts:posts,
+            count:posts.length
+        })
+    }catch(err){
+        next(err)
+    }
+}
+
 // POST /api/users
 const createUser = async (req, res, next) => {
     const {name,email,role}= req.body;
@@ -117,10 +138,44 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     const {id}= req.params;
     if(!ifIdIsValidIdWithMongoose(id)) return next(htpErrors(400,'invalid user id format'));
+     //this part only works on ATLAS or with MongooDB need replica Set
+    // try{
+    //    
+    //     const session = await mongoose.startSession();
+    //     await session.withTransaction(async()=>{
+    //         const user = await User.findById(id).session(session);
+    //         if(!user) return next (htpErrors(404,'user not found to delete'));
+    //         const postsDeleted = await Post.deleteMany({author:id}).session (session);
+    //         await User.findByIdAndDelete(id).session(session);
+             
+    //            })
+        
+    //     // const userToDelete = await User.findByIdAndDelete(id);
+    //     if(!userToDelete) return next(htpErrors(404,'user not found to delete'));
+    //     res.status(200).json({
+    // message:'user deleted successfully', 
+    // Dleted:postsDeleted.deletedCount
+    // });
+    // }catch(err){
+    //     next(err)
+    // }finally{
+    //     session.endSession();
+    // }
     try{
+        const userExists = await User.findById(id);
+        if(!userExists) return next (htpErrors(404,'user not found to delete'));
+
+        const postsToDelet = await Post.deleteMany({author:id});
         const userToDelete = await User.findByIdAndDelete(id);
+
         if(!userToDelete) return next(htpErrors(404,'user not found to delete'));
-        res.status(200).json({message:'user deleted successfully', user:userToDelete});
+        res.status(200).json(
+            {
+                message:'user and posts deleted successfully',
+                posts: postsToDelet.deletedCount,
+                 user:userToDelete,
+                }
+            );
     }catch(err){
         next(err)
     }
@@ -130,5 +185,6 @@ deleteUser,
 updateUser,
 createUser,
 getUserById,
-getAllUsersAndBasedOnrole
+getAllUsersAndBasedOnrole,
+getUserPosts
 }

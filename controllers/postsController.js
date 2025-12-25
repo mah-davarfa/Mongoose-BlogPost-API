@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Post = require ("../models/Post");
+const Comments = require("../models/Comment");
 //helper function for error
 
 function errorMaker(status,message){
@@ -39,9 +40,11 @@ const createPost = async (req,res,next)=>{
     };
         const createdPost = await Post.create(newPost)
         if(!createdPost) return next (errorMaker(500,'failed to create new post'))
+            const populatedPost = await Post.findById(createdPost._id)
+        .populate('author','name email');
     res.status(201).json({
         message:'new post created',
-        post:createdPost
+        post:populatedPost
     })
     }catch(err){
         return next(err)
@@ -51,8 +54,14 @@ const createPost = async (req,res,next)=>{
 //GET/api/posts
 const getAllPosts= async (req,res, next)=>{
    try{
-    const posts = await Post.find().populate('author','name email').sort({createdAt:-1});
+    const posts = await Post.find()
+        .populate({
+        path:'comments',
+        populate:{path:'author', select:'name'}
+    })
+    .populate('author','name email').sort({createdAt:-1});
     if(!posts) return next (errorMaker(500,'could not retrieve posts'));
+
     res.status(200).json({
         posts:posts,
         count:posts.length
@@ -68,7 +77,17 @@ const getPostById= async (req,res,next)=>{
             const {id}= req.params;
         if(!id) return next(errorMaker(400,'To get a post need ID'))
         if(!ifIdIsValidIdWithMongoose(id)) return next(errorMaker(400,'invalid post ID format'))
-            const post = await Post.findById(id).populate('author','name email');
+            const post = await Post.findById(id)
+        //check if post exist
+        if(!post) return next(errorMaker(404,'the requested post not found '))
+            //populate comments and author for post
+        await post
+        ///regular populate to add comment to post display
+        .populate({
+            path:'comments',
+            populate:{path:'author', select:'name'}
+        })
+        .populate('author','name email');
             if(!post) return next(errorMaker(404,'the requested post not found '))
          res.status(200).json({
                 post
@@ -86,12 +105,12 @@ const updatePost= async (req,res,next)=>{
     const{id}=req.params
     if(!id) return next(errorMaker(400,'ID is required for update'))
         if(!ifIdIsValidIdWithMongoose(id)) return next(errorMaker(400,'invalid post ID format'))
-            const {title,content,author,published}=req.body
+            const {title,content,published}=req.body
 
     const newUpdate={}
         if(title)newUpdate.title = String(title).trim()
         if(content)newUpdate.content =String(content).trim()
-        if(author)newUpdate.author=author
+       
         
         if(newUpdate.title && newUpdate.title.length<3) return next(errorMaker(400,'title min 3 characters'))
         if(newUpdate.content && newUpdate.content.length<10) return next(errorMaker(400,'content min 10 characters'))
@@ -126,7 +145,9 @@ const deletePost=async (req,res,next)=>{
         if(!id) return next(errorMaker(400,'ID is required for Delete'))
             if(!ifIdIsValidIdWithMongoose(id)) return next(errorMaker(400,'invalid post ID format'))
         const removedPost = await Post.findByIdAndDelete(id);
+       
         if(!removedPost) return next(errorMaker(404,'the post does not exist to be deleted'))
+             const removeCommentsForThatPost = await Comment.deleteMany({post:id})
      res.status(200).json({
         message:'post succesfully removed',
         post:removedPost

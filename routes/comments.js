@@ -1,7 +1,14 @@
-// const express = require('express')
-// const router = express.Router()
+const express = require('express')
+const router = express.Router()
+const{
+    getAllUserComments,
+    createComment,
+} = '../controllers/commentsController.js'
+//GET /api/comments/:id
+router.get('/:id',getAllUserComments)
 
-
+//POST /api/comments/:id
+router.post('/:id',createComment)
 // //GET / api/ users/:userId/comments  All comments for a user  /// 
 // router.get('/users/:userId/comments')
 
@@ -15,4 +22,4 @@
 // //DELETE /api/comments/:id → delete comment     ////
 // router.delete('/comments/:id')
 
-// module.exports =router;
+module.exports =router;

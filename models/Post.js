@@ -3,7 +3,12 @@ const sanitizeHtml= require('sanitize-html')
 
 const postSchema = new mongoose.Schema(
     {
-        title:{type:String, required:true, trim:true ,minlength:3},
+        title:{
+            type:String, 
+            required:true, 
+            trim:true ,
+            minlength:3
+        },
         content:{
             type:String,
             required:true,
@@ -26,7 +31,8 @@ const postSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
             },
-        
+        comments:[{type:mongoose.Schema.Types.ObjectId,
+            ref:'Comment'}]
     },
     {timestamps:true}
 )
