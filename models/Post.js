@@ -31,9 +31,21 @@ const postSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
             },
-        comments:[{type:mongoose.Schema.Types.ObjectId,
-            ref:'Comment'}]
+            //regular populate
+        // comments:[{type:mongoose.Schema.Types.ObjectId,
+        //     ref:'Comment'}]
     },
-    {timestamps:true}
+    {
+        //add toJSON and toObject options to include virtuals
+    timestamps:true,
+    toJSON:{virtuals:true},
+    toObject:{virtuals:true}
+}
 )
+//virtual populate
+postSchema.virtual('comments',{
+    ref:'Comment',
+    localField:'_id',
+    foreignField:'post'
+})
 module.exports=mongoose.model('Post',postSchema)

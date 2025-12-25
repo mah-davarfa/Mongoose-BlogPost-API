@@ -68,7 +68,7 @@ app.get('/', (req, res) => {
 
 //login
 app.get("/login", (req,res)=>{
-
+///we set it up later 
 })
 //useing the Routes
 app.use('/api/posts',postsRoute);

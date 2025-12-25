@@ -57,6 +57,7 @@ const getAllPosts= async (req,res, next)=>{
     const posts = await Post.find()
         .populate({
         path:'comments',
+        select:'content author createdAt',
         populate:{path:'author', select:'name'}
     })
     .populate('author','name email').sort({createdAt:-1});
@@ -85,6 +86,7 @@ const getPostById= async (req,res,next)=>{
         ///regular populate to add comment to post display
         .populate({
             path:'comments',
+            select:'content author createdAt',
             populate:{path:'author', select:'name'}
         })
         .populate('author','name email');
@@ -147,7 +149,7 @@ const deletePost=async (req,res,next)=>{
         const removedPost = await Post.findByIdAndDelete(id);
        
         if(!removedPost) return next(errorMaker(404,'the post does not exist to be deleted'))
-             const removeCommentsForThatPost = await Comment.deleteMany({post:id})
+             const removeCommentsForThatPost = await Comments.deleteMany({post:id})
      res.status(200).json({
         message:'post succesfully removed',
         post:removedPost

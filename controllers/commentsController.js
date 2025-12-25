@@ -18,13 +18,13 @@ const isIdValidWithMongoose =(id)=>{
 //GET / api/ comments/:userId    getting  All comments for a user 
 const getAllUserComments = async (req,res,next)=>{
     try{
-        const {id}= req.params;
-        if(!id) return next (makeError (400,'UserId is required'))
-        if(!isIdValidWithMongoose(id)) return next (makeError (400,'UserId is not valid Mongoose id'))
-         const isUserExist = await Users.findById (id);
+        const {userId}= req.params;
+        if(!userId) return next (makeError (400,'UserId is required'))
+        if(!isIdValidWithMongoose(userId)) return next (makeError (400,'UserId is not valid Mongoose id'))
+         const isUserExist = await Users.findById (userId);
             if(!isUserExist) return next (makeError (404,'User with this id not exist!!'))
        
-                const commentsForUser = await Comments.find({author:id})
+                const commentsForUser = await Comments.find({author:userId})
                             .populate('author','name')
                             .populate('post','title content')
     res.status(200).json({
@@ -53,17 +53,17 @@ const createComment = async (req, res, next)=>{
             if(!isIdValidWithMongoose(authorId)) return next (makeError (400,'authorId is not valid Mongoose id'))
             const isAuthorExist = await Users.findById (authorId);
             if(!isAuthorExist) return next (makeError (404,'User with this authorId not exist!!'))
-                //create comment with regullar populate (not virtual populate)
+                //create comment 
             let createdComment =await Comments.create({
                 content:comment,
                 author:authorId,
                 post:postId
             })
 
-            //add comment to the post
-            await Posts.findByIdAndUpdate(postId,{
-                $push:{comments:createdComment._id}
-            })
+            //add comment to the post for regullar populate
+            // await Posts.findByIdAndUpdate(postId,{
+            //     $push:{comments:createdComment._id}
+            // })
             // populate post and comment for display
             createdComment = await createdComment
             .populate('author','name ')
