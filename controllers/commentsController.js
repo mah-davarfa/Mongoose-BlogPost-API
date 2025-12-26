@@ -65,9 +65,10 @@ const createComment = async (req, res, next)=>{
             //     $push:{comments:createdComment._id}
             // })
             // populate post and comment for display
-            createdComment = await createdComment
-            .populate('author','name ')
-            .populate('post','title content')             
+            createdComment = await createdComment.populate([
+                { path: 'author', select: 'name' },
+                { path: 'post', select: 'title content' }
+                ]);             
 
 
             res.status (201).json({
